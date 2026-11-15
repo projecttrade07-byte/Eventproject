@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add Event</title>
+    <style>
+      :root {
+        --bg: #f4f6fb;
+        --card: #ffffff;
+        --primary: #2e5bff;
+        --primary-dark: #1f46cc;
+        --accent: #dfe8ff;
+        --text: #1b2430;
+        --muted: #5f6c7b;
+        --danger: #d14343;
+        --success: #1d8f5f;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background: linear-gradient(135deg, #eef4ff, #f9fbff);
+        color: var(--text);
+      }
+
+      .container {
+        max-width: 760px;
+        margin: 48px auto;
+        padding: 24px;
+      }
+
+      .nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+      }
+
+      .nav a {
+        text-decoration: none;
+        color: var(--primary-dark);
+        font-weight: 700;
+      }
+
+      .card {
+        background: var(--card);
+        border-radius: 18px;
+        box-shadow: 0 12px 35px rgba(26, 46, 94, 0.08);
+        padding: 32px;
+      }
+
+      h1 {
+        margin-top: 0;
+        font-size: 2rem;
+      }
+
+      form {
+        display: grid;
+        gap: 18px;
+      }
+
+      .field {
+        display: grid;
+        gap: 8px;
+      }
+
+      label {
+        font-weight: 700;
+      }
+
+      input, textarea {
+        width: 100%;
+        border: 1px solid #dfe4ee;
+        border-radius: 10px;
+        padding: 12px 14px;
+        font-size: 1rem;
+        background: #fff;
+      }
+
+      textarea {
+        resize: vertical;
+        min-height: 130px;
+      }
+
+      .field-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      button {
+        border: none;
+        background: var(--primary);
+        color: white;
+        border-radius: 10px;
+        padding: 14px 20px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.2s ease;
+      }
+
+      button:hover {
+        background: var(--primary-dark);
+      }
+
+      .status {
+        min-height: 22px;
+        font-size: 0.95rem;
+        font-weight: 700;
+      }
+
+      .status.success { color: var(--success); }
+      .status.error { color: var(--danger); }
+
+      @media (max-width: 600px) {
+        .field-row {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="nav">
+        <a href="/events">View All Events</a>
+        <a href="/events/new">Add New Event</a>
+      </div>
+
+      <div class="card">
+        <h1>Add Event</h1>
+
+        <form id="event-form">
+          <div class="field">
+            <label for="title">Event Title</label>
+            <input id="title" name="title" type="text" required />
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="date">Date</label>
+              <input id="date" name="date" type="date" required />
+            </div>
+            <div class="field">
+              <label for="time">Time</label>
+              <input id="time" name="time" type="time" required />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="details">Event Details</label>
+            <textarea id="details" name="details" required></textarea>
+          </div>
+
+          <button type="submit">Save Event</button>
+          <div id="message" class="status" aria-live="polite"></div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const form = document.getElementById('event-form');
+      const messageBox = document.getElementById('message');
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const formData = new FormData(form);
+        const payload = Object.fromEntries(formData.entries());
+
+        messageBox.textContent = '';
+        messageBox.className = 'status';
+
+        try {
+          const response = await fetch('/api/events', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+
+          const result = await response.json();
+
+          if (!response.ok) {
+            throw new Error(result.error || 'Unable to save event.');
+          }
+
+          messageBox.textContent = 'Event saved successfully!';
+          messageBox.classList.add('success');
+          form.reset();
+        } catch (error) {
+          messageBox.textContent = error.message;
+          messageBox.classList.add('error');
+        }
+      });
+    </script>
+  </body>
+</html>

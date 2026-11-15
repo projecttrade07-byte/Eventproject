@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>All Events</title>
+    <style>
+      :root {
+        --bg: #f4f6fb;
+        --card: #ffffff;
+        --primary: #2e5bff;
+        --primary-dark: #1f46cc;
+        --text: #1b2430;
+        --muted: #5f6c7b;
+        --border: #e6ebf2;
+        --shadow: 0 12px 35px rgba(26, 46, 94, 0.08);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background: linear-gradient(135deg, #eef4ff, #f9fbff);
+        color: var(--text);
+      }
+
+      .container {
+        max-width: 980px;
+        margin: 48px auto;
+        padding: 24px;
+      }
+
+      .nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+      }
+
+      .nav a {
+        text-decoration: none;
+        color: var(--primary-dark);
+        font-weight: 700;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      h1 {
+        margin: 0;
+      }
+
+      .events-list {
+        display: grid;
+        gap: 18px;
+      }
+
+      .event-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 22px;
+        box-shadow: var(--shadow);
+      }
+
+      .event-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .event-title {
+        margin: 0;
+        font-size: 1.35rem;
+      }
+
+      .date-time {
+        color: var(--muted);
+        font-size: 0.96rem;
+      }
+
+      .details {
+        color: var(--text);
+        line-height: 1.6;
+        margin-top: 12px;
+        white-space: pre-wrap;
+      }
+
+      .empty-state {
+        background: var(--card);
+        border: 1px dashed var(--border);
+        border-radius: 16px;
+        padding: 30px;
+        text-align: center;
+        color: var(--muted);
+      }
+
+      @media (max-width: 640px) {
+        .event-top {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="nav">
+        <a href="/events/new">Add Event</a>
+        <a href="/events">View All Events</a>
+      </div>
+
+      <div class="header">
+        <h1>All Events</h1>
+      </div>
+
+      <div id="events-list" class="events-list"></div>
+    </div>
+
+    <script>
+      async function loadEvents() {
+        const container = document.getElementById('events-list');
+
+        try {
+          const response = await fetch('/api/events');
+          const events = await response.json();
+
+          if (!response.ok) {
+            throw new Error(events.error || 'Unable to load events.');
+          }
+
+          if (!events.length) {
+            container.innerHTML = '<div class="empty-state">No events found yet. Add your first event.</div>';
+            return;
+          }
+
+          container.innerHTML = events.map((event) => `
+            <article class="event-card">
+              <div class="event-top">
+                <h2 class="event-title">${escapeHtml(event.title)}</h2>
+                <span class="date-time">${formatDate(event.date)} at ${event.time}</span>
+              </div>
+              <div class="details">${escapeHtml(event.details)}</div>
+            </article>
+          `).join('');
+        } catch (error) {
+          container.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
+        }
+      }
+
+      function formatDate(dateValue) {
+        const date = new Date(dateValue + 'T00:00:00');
+        return date.toLocaleDateString(undefined, {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        });
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      loadEvents();
+    </script>
+  </body>
+</html>
