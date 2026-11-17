@@ -6,7 +6,11 @@ make long senario
 
 
 
+<<<<<<< HEAD
 
 
 
 
+=======
+ءءءءء
+>>>>>>> 4d84243 (Update test.txt)
