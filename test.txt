@@ -2,19 +2,3 @@ test rules
 check and verify authority
 detect errors 
 make long senario
-
-
-
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-
-
-
-=======
-ءءءءء
->>>>>>> 4d84243 (Update test.txt)
-=======
-
->>>>>>> f51817e (Remove unnecessary characters from test.txt)
